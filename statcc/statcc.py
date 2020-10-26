@@ -16,7 +16,7 @@ class statcc:
         """
         self.tipo_do_teste = tipo
 
-    def cadastrar__hipotese(self, tipo = 'bilateral'):
+    def cadastrar_hipotese(self, tipo = 'bilateral'):
         """
         Método para definição de qual será o tipo da hipotese, se será unilateral ou bilateral.
 
