@@ -11,7 +11,7 @@ setup(
     author_email='andrerussi002@gmail.com',
     url='https://github.com/andretocci/statcc',
     packages=['statcc'],
-    install_requires=['numpy', 'scipy.stats' ],
+    install_requires=['numpy', 'scipy' ],
     license="Apache License 2.0",
     classifiers=[
         "Programming Language :: Python :: 3",
