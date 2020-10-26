@@ -24,20 +24,20 @@ class statcc:
         """
         self.tipo_da_hipotese = tipo
 
-    def margem_de_erro( z_value, desvio_padrao, n):
+    def margem_de_erro(self, z_value, desvio_padrao, n):
 
         margem_erro = z_value * (desvio_padrao / (n ** 0.5))
 
         return margem_erro
 
-    def margem_de_erro_t( t, desvio_padrao_amostral, n):
+    def margem_de_erro_t(self, t, desvio_padrao_amostral, n):
         """ 
         Trata-se da mesma fórmula de margem de erro, mas com notações diferentes.
         """
 
         return t * (desvio_padrao_amostral / (n ** 0.5))
 
-    def intervalo_confianca( media_amostral, margem_de_erro):
+    def intervalo_confianca(self, media_amostral, margem_de_erro):
         return media_amostral - margem_de_erro, media_amostral + margem_de_erro
 
 
@@ -52,7 +52,7 @@ class statcc:
 
         return parte1 * ajuste_n
 
-    def tamanho_amostral_finita( z_value, desvio_padrao, error_margin, n_population):
+    def tamanho_amostral_finita(self, z_value, desvio_padrao, error_margin, n_population):
 
         parte_de_cima = (z_value**2) * (desvio_padrao**2) * (n_population)
         parte_de_baixo = ((error_margin**2) * (n_population - 1)) + ((z_value**2) * (desvio_padrao**2))
@@ -61,10 +61,10 @@ class statcc:
 
     ## Teste de Hipoteses
 
-    def calculo_z( x_barra, media_populacional, desvio_padrao, n):
+    def calculo_z(self, x_barra, media_populacional, desvio_padrao, n):
         return (x_barra - media_populacional) / (desvio_padrao / (n**0.5))
 
-    def calculo_t( x_barra, media_populacional, s, n):
+    def calculo_t(self, x_barra, media_populacional, s, n):
         return (x_barra - media_populacional) /( s / (n**0.5))
 
     def z_value(self, confianca):
