@@ -1,4 +1,4 @@
-class statcc:
+class statcc: 
 
     def __init__(self):
 
@@ -7,9 +7,9 @@ class statcc:
     ## Margem de erro
     #################
 
-    def margem_de_erro( z_value, std, n):
+    def margem_de_erro( z_value, desvio_padrao, n):
 
-        margem_erro = z_value * (std / (n ** 0.5))
+        margem_erro = z_value * (desvio_padrao / (n ** 0.5))
 
         return margem_erro
 
@@ -22,38 +22,38 @@ class statcc:
 
         return margem_erro
 
-    def intervalo_confianca( x, margem_de_erro):
-        return x - margem_de_erro, x + margem_de_erro
+    def intervalo_confianca( media_amostral, margem_de_erro):
+        return media_amostral - margem_de_erro, media_amostral + margem_de_erro
 
 
-    def tamanho_amostral( z_value, std, error_margin):
+    def tamanho_amostral( z_value, desvio_padrao, error_margin):
 
-        n = ((z_value ** 2) * ( std ** 2) / (error_margin ** 2) )
+        n = ((z_value ** 2) * ( desvio_padrao ** 2) / (error_margin ** 2) )
 
         return n
 
-    def margem_de_erro_finita( z_value, std, n_sample, n_population):
+    def margem_de_erro_finita( z_value, desvio_padrao, n_sample, n_population):
 
-        parte1 = self.margem_de_erro(z_value, std, n_sample)
+        parte1 = self.margem_de_erro(z_value, desvio_padrao, n_sample)
 
         ajuste_n = ((n_population - n_sample) / (n_population - 1)) ** 0.5
 
         return parte1 * ajuste_n
 
-    def tamanho_amostral_finita( z_value, std, error_margin, n_population):
+    def tamanho_amostral_finita( z_value, desvio_padrao, error_margin, n_population):
 
-        parte_de_cima = (z_value**2) * (std**2) * (n_population)
-        parte_de_baixo = ((error_margin**2) * (n_population - 1)) + ((z_value**2) * (std**2))
+        parte_de_cima = (z_value**2) * (desvio_padrao**2) * (n_population)
+        parte_de_baixo = ((error_margin**2) * (n_population - 1)) + ((z_value**2) * (desvio_padrao**2))
 
         return parte_de_cima / parte_de_baixo
 
     ## Teste de Hipoteses
 
-    def calculo_z( x_barra, u, std, n):
-        return (x_barra - u) / (std / (n**0.5))
+    def calculo_z( x_barra, media_populacional, desvio_padrao, n):
+        return (x_barra - media_populacional) / (desvio_padrao / (n**0.5))
 
-    def calculo_t( x_barra, u, s, n):
-        return (x_barra - u) /( s / (n**0.5))
+    def calculo_t( x_barra, media_populacional, s, n):
+        return (x_barra - media_populacional) /( s / (n**0.5))
 
     def z_value( confianca, tipo = 'unilateral'):
         """
@@ -70,21 +70,21 @@ class statcc:
 
         return Z
 
-    def teste_de_hipoteses( n, u, x, std, confianca, tipo_hipotese, teste):
+    def teste_de_hipoteses( n, media_populacional, media_amostral, desvio_padrao, confianca, tipo_hipotese, teste):
         """
         tipo_hipotese => ['bilateral', '>', '<']
         teste => 't ou 'z'
         """
 
         if teste == 't':
-            s = std
+            s = desvio_padrao
 
         # Defina H0 e H1
-        H0 = 'H0: u = ' + str(u)
+        H0 = 'H0: u = ' + str(media_populacional)
         if tipo_hipotese == 'bilateral':
-            H1 = 'H1: u != '+ str(u)
+            H1 = 'H1: u != '+ str(media_populacional)
         else:
-            H1 = f'H1: u {tipo_hipotese} '+ str(u)
+            H1 = f'H1: u {tipo_hipotese} '+ str(media_populacional)
 
         print('Definindo Hipoteses:')
         print(H0)
@@ -102,10 +102,10 @@ class statcc:
 
         # Encontrando estatística do teste
         if teste == 't':
-            t = calculo_t(x, u, s, n)
+            t = calculo_t(media_amostral, media_populacional, s, n)
             print(f'\nValor de t: {t}')
         else:
-            z = calculo_z(x, u, std, n)
+            z = calculo_z(media_amostral, media_populacional, desvio_padrao, n)
             print(f'\nValor de Z: {z}')
 
 
@@ -162,12 +162,12 @@ class statcc:
         print('\n>>> Intervalo de Confiânça\n')
 
         if teste == 't':
-            margem = margem_de_erro_t(t0, s, n)
+            margem = self.margem_de_erro_t(t0, s, n)
         else:
-            margem = margem_de_erro(z0, std, n)
+            margem = self.margem_de_erro(z0, desvio_padrao, n)
 
         #Calculando intervalo de confiança
-        intervalo = intervalo_confianca(x, margem)
+        intervalo = self.intervalo_confianca(media_amostral, margem)
         print(f'Intervalo de Confiança: {intervalo}')
         print('_____________')
 
@@ -177,65 +177,63 @@ class statcc:
         - Z é o valor da Distribuição
         Normal que fornece a
         confiança desejada.
-        - p_barra(1 − p_barra) é a variância estimada que é função de p_barra fornecido 
+        - proporcao_amostral(1 − proporcao_amostral) é a variância estimada que é função de proporcao_amostral fornecido 
         pela amostra piloto.
         - N é o tamanho populacional.
         """
         pass
 
-        def hipotese(p, p_barra, n):
+        def hipotese(proporcao_populacional, proporcao_amostral, n):
             """
-            p é a proporção populacional
-            O p_barra é a proporção amostral
+            proporcao_populacional é a proporção populacional
+            O proporcao_amostral é a proporção amostral 
             n é o tamanho da amostra
             """
 
-            superior = (p_barra - p)
-            inferior = (p*(1-p)) / n
+            superior = (proporcao_amostral - proporcao_populacional)
+            inferior = (proporcao_populacional*(1-proporcao_populacional)) / n
 
             return superior / (inferior ** 0.5)
 
 
-        def intervalo_confianca(p_barra, me):
-            return p_barra - me, p_barra + me
+        def intervalo_confianca(proporcao_amostral, me):
+            return proporcao_amostral - me, proporcao_amostral + me
 
-        def margem_de_erro(z, p_barra, n):
-            temp = (p_barra* (1- p_barra)) / n
+        def margem_de_erro(z, proporcao_amostral, n):
+            temp = (proporcao_amostral* (1- proporcao_amostral)) / n
             me = z * (temp ** 0.5)
             return me
 
-        def tamanho_amostral(z_value, p_barra, error_margin):
+        def tamanho_amostral(z_value, proporcao_amostral, error_margin):
 
-            n = ((z_value ** 2) * (p_barra * (1 - p_barra) ) / (error_margin ** 2) )
+            return ((z_value ** 2) * (proporcao_amostral * (1 - proporcao_amostral) ) / (error_margin ** 2) )
 
-            return n
+        def margem_de_erro_finita(z_value, proporcao_amostral, n_sample, n_population):
 
-        def margem_de_erro_finita(z_value, p_barra, n_sample, n_population):
-
-            parte1 = statcc.proporcao.margem_de_erro(z_value, p_barra, n_sample)
+            parte1 = statcc.proporcao.margem_de_erro(z_value, proporcao_amostral, n_sample)
 
             ajuste_n = ((n_population - n_sample) / (n_population - 1)) ** 0.5
 
             return parte1 * ajuste_n
 
-        def tamanho_amostral_finita(z_value, p_barra, error_margin, n_population):
+        def tamanho_amostral_finita(z_value, proporcao_amostral, error_margin, n_population):
 
-            parte_de_cima = (z_value**2) * (p_barra * (1 - p_barra)) * (n_population)
-            parte_de_baixo = ((error_margin**2) * (n_population - 1)) + ((z_value**2) * (p_barra * (1 - p_barra)))
+            parte_de_cima = (z_value**2) * (proporcao_amostral * (1 - proporcao_amostral)) * (n_population)
+            parte_de_baixo = ((error_margin**2) * (n_population - 1)) + ((z_value**2) * (proporcao_amostral * (1 - proporcao_amostral)))
 
             return parte_de_cima / parte_de_baixo
 
-        def teste_de_hipoteses(p, p_barra, n, confianca, tipo_hipotese):
+        def teste_de_hipoteses(proporcao_populacional, proporcao_amostral, n, confianca, tipo_hipotese):
             """
             tipo_hipotese => ['bilateral', '>', '<']
             """
 
             # Defina H0 e H1
-            H0 = 'H0: u = ' + str(p)
+            H0 = 'H0: u = ' + str(proporcao_populacional)
             if tipo_hipotese == 'bilateral':
-                H1 = 'H1: u != '+ str(p)
+                H1 = 'H1: u != '+ str(proporcao_populacional)
             else:
-                H1 = f'H1: u {tipo_hipotese} '+ str(p)
+                H1 = f'H1: u {tipo_hipotese} '+ str(proporcao_populacional)
 
             print('Definindo Hipoteses:')
             print(H0)
@@ -250,9 +248,8 @@ class statcc:
             print(f'Confiança: {confianca}')
             print(f'Alpha: {alpha}')
 
-
             # Encontrando estatística do teste
-            z = statcc.proporcao.hipotese(p, p_barra, n)
+            z = statcc.proporcao.hipotese(proporcao_populacional, proporcao_amostral, n)
             print(f'\nValor de Z: {z}')
             print('_____________')
 
@@ -293,9 +290,9 @@ class statcc:
 
             print('\n>>> Intervalo de Confiânça\n')
 
-            margem = statcc.proporcao.margem_de_erro(z0, p_barra, n)
+            margem = statcc.proporcao.margem_de_erro(z0, proporcao_amostral, n)
 
             #Calculando intervalo de confiança
-            intervalo = statcc.proporcao.intervalo_confianca(p_barra, margem)
+            intervalo = statcc.proporcao.intervalo_confianca(proporcao_amostral, margem)
             print(f'Intervalo de Confiança: {intervalo}')
             print('_____________')
