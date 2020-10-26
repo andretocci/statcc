@@ -2,10 +2,27 @@ class statcc:
 
     def __init__(self):
 
-        
+        self.tipo_do_teste = None
+        self.tipo_da_hipotese = None 
 
     ## Margem de erro
     #################
+
+    def cadastrar_teste(self, tipo = 'z'):
+        """
+        Método para definição de qual será o tipo do teste.
+
+        Pode receber valor 't' para um t-test ou 'z'para um z-test.
+        """
+        self.tipo_do_teste = tipo
+
+    def cadastrar__hipotese(self, tipo = 'bilateral'):
+        """
+        Método para definição de qual será o tipo da hipotese, se será unilateral ou bilateral.
+
+        Pode receber valor 't' para um t-test ou 'z'para um z-test.
+        """
+        self.tipo_da_hipotese = tipo
 
     def margem_de_erro( z_value, desvio_padrao, n):
 
@@ -18,21 +35,16 @@ class statcc:
         Trata-se da mesma fórmula de margem de erro, mas com notações diferentes.
         """
 
-        margem_erro = t * (desvio_padrao_amostral / (n ** 0.5))
-
-        return margem_erro
+        return t * (desvio_padrao_amostral / (n ** 0.5))
 
     def intervalo_confianca( media_amostral, margem_de_erro):
         return media_amostral - margem_de_erro, media_amostral + margem_de_erro
 
 
     def tamanho_amostral( z_value, desvio_padrao, error_margin):
+        return ((z_value ** 2) * ( desvio_padrao ** 2) / (error_margin ** 2) )
 
-        n = ((z_value ** 2) * ( desvio_padrao ** 2) / (error_margin ** 2) )
-
-        return n
-
-    def margem_de_erro_finita( z_value, desvio_padrao, n_sample, n_population):
+    def margem_de_erro_finita(self, z_value, desvio_padrao, n_sample, n_population):
 
         parte1 = self.margem_de_erro(z_value, desvio_padrao, n_sample)
 
@@ -55,14 +67,14 @@ class statcc:
     def calculo_t( x_barra, media_populacional, s, n):
         return (x_barra - media_populacional) /( s / (n**0.5))
 
-    def z_value( confianca, tipo = 'unilateral'):
+    def z_value(self, confianca):
         """
         Retorna o valor de Z com base em um nível de confiânça. Tipo indica se valor avaliado é uni ou bilateral.
         
         import scipy.stats as st
         st.norm.ppf()
         """
-        if tipo == 'bilateral':
+        if self.tipo_do_teste == 'bilateral':
             alpha = 1 - confianca
             alpha = alpha / 2
             confianca = 1 - alpha
@@ -70,27 +82,27 @@ class statcc:
 
         return Z
 
-    def teste_de_hipoteses( n, media_populacional, media_amostral, desvio_padrao, confianca, tipo_hipotese, teste):
+    def teste_de_hipoteses(self, n, media_populacional, media_amostral, desvio_padrao, confianca):
         """
         tipo_hipotese => ['bilateral', '>', '<']
         teste => 't ou 'z'
         """
 
-        if teste == 't':
+        if self.tipo_do_teste == 't':
             s = desvio_padrao
 
         # Defina H0 e H1
         H0 = 'H0: u = ' + str(media_populacional)
-        if tipo_hipotese == 'bilateral':
+        if self.tipo_da_hipotese == 'bilateral':
             H1 = 'H1: u != '+ str(media_populacional)
         else:
-            H1 = f'H1: u {tipo_hipotese} '+ str(media_populacional)
+            H1 = f'H1: u {self.tipo_da_hipotese} '+ str(media_populacional)
 
         print('Definindo Hipoteses:')
         print(H0)
         print(H1)
 
-        if tipo_hipotese == 'bilateral':
+        if self.tipo_da_hipotese == 'bilateral':
             alpha = 1 - confianca
             alpha = alpha / 2
             confianca = 1 - alpha
@@ -101,11 +113,11 @@ class statcc:
 
 
         # Encontrando estatística do teste
-        if teste == 't':
-            t = calculo_t(media_amostral, media_populacional, s, n)
+        if self.tipo_do_teste == 't':
+            t = self.calculo_t(media_amostral, media_populacional, s, n)
             print(f'\nValor de t: {t}')
         else:
-            z = calculo_z(media_amostral, media_populacional, desvio_padrao, n)
+            z = self.calculo_z(media_amostral, media_populacional, desvio_padrao, n)
             print(f'\nValor de Z: {z}')
 
 
@@ -136,7 +148,7 @@ class statcc:
 
         print('\n>>> Decisão pelo p-valor\n')
 
-        if teste == 't':
+        if self.tipo_do_teste == 't':
             if t > 0:
                 p_value = scipy.stats.t.sf(t, graus_de_liberdade)
             else:
@@ -161,7 +173,7 @@ class statcc:
 
         print('\n>>> Intervalo de Confiânça\n')
 
-        if teste == 't':
+        if self.tipo_do_teste == 't':
             margem = self.margem_de_erro_t(t0, s, n)
         else:
             margem = self.margem_de_erro(z0, desvio_padrao, n)
