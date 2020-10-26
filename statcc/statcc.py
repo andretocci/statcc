@@ -2,7 +2,7 @@ class statcc:
 
     def __init__(self):
 
-        pass
+        
 
     ## Margem de erro
     #################
@@ -13,12 +13,12 @@ class statcc:
 
         return margem_erro
 
-    def margem_de_erro_t( t, std_amostral, n):
+    def margem_de_erro_t( t, desvio_padrao_amostral, n):
         """ 
         Trata-se da mesma fórmula de margem de erro, mas com notações diferentes.
         """
 
-        margem_erro = t * (std_amostral / (n ** 0.5))
+        margem_erro = t * (desvio_padrao_amostral / (n ** 0.5))
 
         return margem_erro
 
@@ -196,8 +196,8 @@ class statcc:
             return superior / (inferior ** 0.5)
 
 
-        def intervalo_confianca(proporcao_amostral, me):
-            return proporcao_amostral - me, proporcao_amostral + me
+        def intervalo_confianca(proporcao_amostral, margem_erro):
+            return proporcao_amostral - margem_erro, proporcao_amostral + margem_erro
 
         def margem_de_erro(z, proporcao_amostral, n):
             temp = (proporcao_amostral* (1- proporcao_amostral)) / n
