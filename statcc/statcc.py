@@ -4,6 +4,7 @@ class statcc:
 
         self.tipo_do_teste = None
         self.tipo_da_hipotese = None 
+        self.alpha = None
 
     ## Margem de erro
     #################
@@ -16,13 +17,23 @@ class statcc:
         """
         self.tipo_do_teste = tipo
 
-    def cadastrar_hipotese(self, tipo = 'bilateral'):
+    def cadastrar_hipotese(self, tipo = 'bilateral', confianca):
         """
         Método para definição de qual será o tipo da hipotese, se será unilateral ou bilateral.
 
         Pode receber valor 't' para um t-test ou 'z'para um z-test.
         """
         self.tipo_da_hipotese = tipo
+
+        if self.tipo_da_hipotese == 'bilateral':
+            alpha = 1 - confianca
+            self.alpha = alpha / 2
+            self.confianca = 1 - self.alpha
+        else:
+            self.confianca = confianca
+            self.alpha = 1 - self.confianca
+
+        print('Alpha =', self.alpha)
 
     def margem_de_erro(self, z_value, desvio_padrao, n):
 
@@ -67,20 +78,23 @@ class statcc:
     def calculo_t(self, x_barra, media_populacional, s, n):
         return (x_barra - media_populacional) /( s / (n**0.5))
 
-    def z_value(self, confianca):
+    def z_value(self):
         """
         Retorna o valor de Z com base em um nível de confiânça. Tipo indica se valor avaliado é uni ou bilateral.
         
         import scipy.stats as st
         st.norm.ppf()
         """
-        if self.tipo_do_teste == 'bilateral':
-            alpha = 1 - confianca
-            alpha = alpha / 2
-            confianca = 1 - alpha
-        Z = st.norm.ppf(confianca)
+        return st.norm.ppf(self.confianca)
 
-        return Z
+    def t_value(self, n):
+        """
+        Retorna o valor de t com base em um nível de confiânça. Tipo indica se valor avaliado é uni ou bilateral.
+        
+        import scipy.stats as st
+        st.norm.ppf()
+        """
+        return scipy.stats.t.ppf(self.confianca, n - 1)
 
     def teste_de_hipoteses(self, n, media_populacional, media_amostral, desvio_padrao, confianca):
         """
@@ -102,14 +116,14 @@ class statcc:
         print(H0)
         print(H1)
 
-        if self.tipo_da_hipotese == 'bilateral':
-            alpha = 1 - confianca
-            alpha = alpha / 2
-            confianca = 1 - alpha
-        else:
-            alpha = 1 - confianca
-        print(f'Confiança: {confianca}')
-        print(f'Alpha: {alpha}')
+        # if self.tipo_da_hipotese == 'bilateral':
+        #     alpha = 1 - confianca
+        #     alpha = alpha / 2
+        #     confianca = 1 - alpha
+        # else:
+        #     alpha = 1 - confianca
+        print(f'Confiança: {self.confianca}')
+        print(f'Alpha: {self.alpha}')
 
 
         # Encontrando estatística do teste
@@ -133,12 +147,14 @@ class statcc:
 
         if teste == 't':
             graus_de_liberdade = n -1
-            t0 = scipy.stats.t.ppf(confianca, graus_de_liberdade)
-            print('T0 com confiança de', confianca,'->', t0)
+            #t0 = scipy.stats.t.ppf(confianca, graus_de_liberdade)
+            t0 = self.t_value(n)
+            print('T0 com confiança de', self.confianca,'->', t0)
         else:
             # Inputa a probabilidade e ele mostra o Z
-            z0 = st.norm.ppf(confianca)
-            print('Z0 com confiança de', confianca,'->', z0)
+            # z0 = st.norm.ppf(confianca)
+            z0 = self.z_value()
+            print('Z0 com confiança de', self.confianca,'->', z0)
 
         print('_____________')
 
@@ -159,7 +175,7 @@ class statcc:
             else:
                 p_value = scipy.stats.norm.sf(z * (-1))
 
-        if tipo_hipotese == 'bilateral':
+        if self.tipo_hipotese == 'bilateral':
             p_value *= 2
             alpha *= 2
 
