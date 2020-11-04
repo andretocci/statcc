@@ -11,7 +11,7 @@ setup(
     author_email='andrerussi002@gmail.com',
     url='https://github.com/andretocci/statcc',
     packages=['testes'],
-    package_dir={'testes': 'stacc/testes/'},
+    package_dir={'testes': 'stacc/testes'},
     package_data={'testes': ['stacc/testes/*.py']},
     install_requires=['numpy', 'scipy' ],
     license="Apache License 2.0",

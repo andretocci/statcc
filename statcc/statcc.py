@@ -1,15 +1,22 @@
-
-import scipy.stats as st
-class teste_hipoteses():
+class statcc: 
 
     def __init__(self):
 
+        self.tipo_do_teste = None
         self.tipo_da_hipotese = None 
-        self.alpha = None
-        self.confianca = None
 
+    ## Margem de erro
+    #################
 
-    def cadastrar_hipotese(self, confianca, tipo = 'bilateral'):
+    def cadastrar_teste(self, tipo = 'z'):
+        """
+        Método para definição de qual será o tipo do teste.
+
+        Pode receber valor 't' para um t-test ou 'z'para um z-test.
+        """
+        self.tipo_do_teste = tipo
+
+    def cadastrar_hipotese(self, tipo = 'bilateral'):
         """
         Método para definição de qual será o tipo da hipotese, se será unilateral ou bilateral.
 
@@ -17,44 +24,24 @@ class teste_hipoteses():
         """
         self.tipo_da_hipotese = tipo
 
-        if self.tipo_da_hipotese == 'bilateral':
-            alpha = 1 - confianca
-            self.alpha = alpha / 2
-            self.confianca = 1 - self.alpha
-        else:
-            self.confianca = confianca
-            self.alpha = 1 - self.confianca
+    def margem_de_erro(z_value, desvio_padrao, n):
 
-        print('Alpha =', self.alpha)
+        margem_erro = z_value * (desvio_padrao / (n ** 0.5))
 
-    def calculo_z(self, x_barra, media_populacional, desvio_padrao, n):
-        return (x_barra - media_populacional) / (desvio_padrao / (n**0.5))
+        return margem_erro
 
-    def calculo_t(self, x_barra, media_populacional, desvio_padrao_amostral, n):
-        return (x_barra - media_populacional) /( desvio_padrao_amostral / (n**0.5))
-
-    def z_value(self):
+    def margem_de_erro_t(t, desvio_padrao_amostral, n):
+        """ 
+        Trata-se da mesma fórmula de margem de erro, mas com notações diferentes.
         """
-        Retorna o valor de Z com base em um nível de confiânça. Tipo indica se valor avaliado é uni ou bilateral.
-        
-        import scipy.stats as st
-        st.norm.ppf()
-        """
-        return st.norm.ppf(self.confianca)
 
-    def t_value(self, n):
-        """
-        Retorna o valor de t com base em um nível de confiânça. 
-        
-        import scipy.stats as st
-        st.norm.ppf()
-        """
-        return scipy.stats.t.ppf(self.confianca, n - 1)
+        return t * (desvio_padrao_amostral / (n ** 0.5))
 
-    def intervalo_confianca(self, media_amostral, margem_de_erro):
+    def intervalo_confianca(media_amostral, margem_de_erro):
         return media_amostral - margem_de_erro, media_amostral + margem_de_erro
 
-    def tamanho_amostral(self, z_value, desvio_padrao, error_margin):
+
+    def tamanho_amostral( z_value, desvio_padrao, error_margin):
         return ((z_value ** 2) * ( desvio_padrao ** 2) / (error_margin ** 2) )
 
     def margem_de_erro_finita(self, z_value, desvio_padrao, n_sample, n_population):
@@ -65,20 +52,44 @@ class teste_hipoteses():
 
         return parte1 * ajuste_n
 
-    def tamanho_amostral_finita(self, z_value, desvio_padrao, error_margin, n_population):
+    def tamanho_amostral_finita(z_value, desvio_padrao, error_margin, n_population):
 
         parte_de_cima = (z_value**2) * (desvio_padrao**2) * (n_population)
         parte_de_baixo = ((error_margin**2) * (n_population - 1)) + ((z_value**2) * (desvio_padrao**2))
 
         return parte_de_cima / parte_de_baixo
 
-    def teste_de_hipoteses(self, n, media_populacional, media_amostral, desvio_padrao_amostral):
+    ## Teste de Hipoteses
+
+    def calculo_z(x_barra, media_populacional, desvio_padrao, n):
+        return (x_barra - media_populacional) / (desvio_padrao / (n**0.5))
+
+    def calculo_t(x_barra, media_populacional, s, n):
+        return (x_barra - media_populacional) /( s / (n**0.5))
+
+    def z_value(self, confianca):
         """
-        Realiza o teste de hipoteses amostral t.
+        Retorna o valor de Z com base em um nível de confiânça. Tipo indica se valor avaliado é uni ou bilateral.
+        
+        import scipy.stats as st
+        st.norm.ppf()
+        """
+        if self.tipo_do_teste == 'bilateral':
+            alpha = 1 - confianca
+            alpha = alpha / 2
+            confianca = 1 - alpha
+        Z = st.norm.ppf(confianca)
+
+        return Z
+
+    def teste_de_hipoteses(self, n, media_populacional, media_amostral, desvio_padrao, confianca):
+        """
+        tipo_hipotese => ['bilateral', '>', '<']
+        teste => 't ou 'z'
         """
 
         if self.tipo_do_teste == 't':
-            desvio_padrao_amostral = desvio_padrao
+            s = desvio_padrao
 
         # Defina H0 e H1
         H0 = 'H0: u = ' + str(media_populacional)
@@ -91,19 +102,19 @@ class teste_hipoteses():
         print(H0)
         print(H1)
 
-        # if self.tipo_da_hipotese == 'bilateral':
-        #     alpha = 1 - confianca
-        #     alpha = alpha / 2
-        #     confianca = 1 - alpha
-        # else:
-        #     alpha = 1 - confianca
-        print(f'Confiança: {self.confianca}')
-        print(f'Alpha: {self.alpha}')
+        if self.tipo_da_hipotese == 'bilateral':
+            alpha = 1 - confianca
+            alpha = alpha / 2
+            confianca = 1 - alpha
+        else:
+            alpha = 1 - confianca
+        print(f'Confiança: {confianca}')
+        print(f'Alpha: {alpha}')
 
 
         # Encontrando estatística do teste
         if self.tipo_do_teste == 't':
-            t = self.calculo_t(media_amostral, media_populacional, desvio_padrao_amostral, n)
+            t = self.calculo_t(media_amostral, media_populacional, s, n)
             print(f'\nValor de t: {t}')
         else:
             z = self.calculo_z(media_amostral, media_populacional, desvio_padrao, n)
@@ -120,16 +131,14 @@ class teste_hipoteses():
 
         import scipy.stats as st
 
-        if teste == 't':
+        if self.tipo_do_teste == 't':
             graus_de_liberdade = n -1
-            #t0 = scipy.stats.t.ppf(confianca, graus_de_liberdade)
-            t0 = self.t_value(n)
-            print('T0 com confiança de', self.confianca,'->', t0)
+            t0 = scipy.stats.t.ppf(confianca, graus_de_liberdade)
+            print('T0 com confiança de', confianca,'->', t0)
         else:
             # Inputa a probabilidade e ele mostra o Z
-            # z0 = st.norm.ppf(confianca)
-            z0 = self.z_value()
-            print('Z0 com confiança de', self.confianca,'->', z0)
+            z0 = st.norm.ppf(confianca)
+            print('Z0 com confiança de', confianca,'->', z0)
 
         print('_____________')
 
@@ -152,9 +161,7 @@ class teste_hipoteses():
 
         if self.tipo_da_hipotese == 'bilateral':
             p_value *= 2
-            alpha = self.alpha * 2
-        else:
-            alpha = self.alpha
+            alpha *= 2
 
         print(f'P Valor do Teste: {p_value}')
         print(f'Valor Alpha: {alpha}')
@@ -167,7 +174,7 @@ class teste_hipoteses():
         print('\n>>> Intervalo de Confiânça\n')
 
         if self.tipo_do_teste == 't':
-            margem = self.margem_de_erro(t0, desvio_padrao_amostral, n)
+            margem = self.margem_de_erro_t(t0, s, n)
         else:
             margem = self.margem_de_erro(z0, desvio_padrao, n)
 
@@ -176,293 +183,128 @@ class teste_hipoteses():
         print(f'Intervalo de Confiança: {intervalo}')
         print('_____________')
 
-
-class hipoteses_z(teste_hipoteses):
-
-    def __init__(self):
-        teste_hipoteses.__init__(self)
-
-    def margem_de_erro(self, z_value, desvio_padrao, n):
-        """ 
-        Recebe o z-valor, desvio padrão populacional e o número de amostras para calcular o valor da margem de erro.
+    class proporcao():
         """
-        return z_value * (desvio_padrao / (n ** 0.5))
-
-    def teste_de_hipoteses(self, n, media_populacional, media_amostral, desvio_padrao):
+        - ME é a margem de erro do estudo.
+        - Z é o valor da Distribuição
+        Normal que fornece a
+        confiança desejada.
+        - proporcao_amostral(1 − proporcao_amostral) é a variância estimada que é função de proporcao_amostral fornecido 
+        pela amostra piloto.
+        - N é o tamanho populacional.
         """
-        Realiza o teste de hipoteses populacional z.
-        """
-
-        # Defina H0 e H1
-        H0 = 'H0: u = ' + str(media_populacional)
-        if self.tipo_da_hipotese == 'bilateral':
-            H1 = 'H1: u != '+ str(media_populacional)
-        else:
-            H1 = f'H1: u {self.tipo_da_hipotese} '+ str(media_populacional)
-
-        print('Definindo Hipoteses:')
-        print(H0)
-        print(H1)
-        print(f'Confiança: {self.confianca}')
-        print(f'Alpha: {self.alpha}')
-
-        z = self.calculo_z(media_amostral, media_populacional, desvio_padrao, n)
-        print(f'\nValor de Z: {z}')
-
-        print('_____________')
-
-        ##############################
-        ## Decisão pela região crítica
-        ##############################
-
-        print('\n>>> Decisão pela região crítica\n')
-        
-        # Inputa a probabilidade e ele mostra o Z
-        z0 = self.z_value()
-        print('Z0 com confiança de', self.confianca,'->', z0)
-
-        print('_____________')
-
-        #######################
-        ## Decisão pelo p-valor
-        #######################
-
-        print('\n>>> Decisão pelo p-valor\n')
-        if z > 0:
-            p_value = scipy.stats.norm.sf(z)
-        else:
-            p_value = scipy.stats.norm.sf(z * (-1))
-
-        if self.tipo_da_hipotese == 'bilateral':
-            p_value *= 2
-            alpha = self.alpha * 2
-        else:
-            alpha = self.alpha
-
-        print(f'P Valor do Teste: {p_value}')
-        print(f'Valor Alpha: {alpha}')
-        print('_____________')
-
-        #########################
-        ## Intervalo de Confiânça
-        #########################
-
-        print('\n>>> Intervalo de Confiânça\n')
-        margem = self.margem_de_erro(z0, desvio_padrao, n)
-
-        #Calculando intervalo de confiança
-        intervalo = self.intervalo_confianca(media_amostral, margem)
-        print(f'Intervalo de Confiança: {intervalo}')
-        print('_____________')
-
-class hipoteses_t(teste_hipoteses):
-
-    def __init__(self):
-        teste_hipoteses.__init__(self)
-
-    def margem_de_erro(self, t_value, desvio_padrao_amostral, n):
-        """ 
-        Recebe o t-valor, desvio padrão amostral e o número de amostras para calcular o valor da margem de erro.
-        """
-        return t_value * (desvio_padrao_amostral / (n ** 0.5))
-
-    ## Teste de Hipoteses
-    def teste_de_hipoteses(self, n, media_populacional, media_amostral, desvio_padrao_amostral):
-        """
-        Realiza o teste de hipoteses amostral t.
-        """
-
-        # Defina H0 e H1
-        H0 = 'H0: u = ' + str(media_populacional)
-        if self.tipo_da_hipotese == 'bilateral':
-            H1 = 'H1: u != '+ str(media_populacional)
-        else:
-            H1 = f'H1: u {self.tipo_da_hipotese} '+ str(media_populacional)
+        pass
 
-        print('Definindo Hipoteses:')
-        print(H0)
-        print(H1)
-        print(f'Confiança: {self.confianca}')
-        print(f'Alpha: {self.alpha}')
+        def hipotese(proporcao_populacional, proporcao_amostral, n):
+            """
+            proporcao_populacional é a proporção populacional
+            O proporcao_amostral é a proporção amostral 
+            n é o tamanho da amostra
+            """
 
+            superior = (proporcao_amostral - proporcao_populacional)
+            inferior = (proporcao_populacional*(1-proporcao_populacional)) / n
 
-        # Encontrando estatística do teste
-        t = self.calculo_t(media_amostral, media_populacional, desvio_padrao_amostral, n)
-        print(f'\nValor de t: {t}')
+            return superior / (inferior ** 0.5)
 
 
-        print('_____________')
+        def intervalo_confianca(proporcao_amostral, margem_erro):
+            return proporcao_amostral - margem_erro, proporcao_amostral + margem_erro
 
-        ##############################
-        ## Decisão pela região crítica
-        ##############################
+        def margem_de_erro(z, proporcao_amostral, n):
+            temp = (proporcao_amostral* (1- proporcao_amostral)) / n
+            me = z * (temp ** 0.5)
+            return me
 
-        print('\n>>> Decisão pela região crítica\n')
-        graus_de_liberdade = n -1
-        #t0 = scipy.stats.t.ppf(confianca, graus_de_liberdade)
-        t0 = self.t_value(n)
-        print('T0 com confiança de', self.confianca,'->', t0)
+        def tamanho_amostral(z_value, proporcao_amostral, error_margin):
 
-        print('_____________')
+            return ((z_value ** 2) * (proporcao_amostral * (1 - proporcao_amostral) ) / (error_margin ** 2) )
 
-        #######################
-        ## Decisão pelo p-valor
-        #######################
-        print('\n>>> Decisão pelo p-valor\n')
-        if t > 0:
-            p_value = scipy.stats.t.sf(t, graus_de_liberdade)
-        else:
-            p_value = scipy.stats.t.sf(t * (-1), graus_de_liberdade)
+        def margem_de_erro_finita(z_value, proporcao_amostral, n_sample, n_population):
 
+            parte1 = statcc.proporcao.margem_de_erro(z_value, proporcao_amostral, n_sample)
 
-        if self.tipo_da_hipotese == 'bilateral':
-            p_value *= 2
-            alpha = self.alpha * 2
-        else:
-            alpha = self.alpha
+            ajuste_n = ((n_population - n_sample) / (n_population - 1)) ** 0.5
 
-        print(f'P Valor do Teste: {p_value}')
-        print(f'Valor Alpha: {alpha}')
-        print('_____________')
+            return parte1 * ajuste_n
 
-        #########################
-        ## Intervalo de Confiânça
-        #########################
+        def tamanho_amostral_finita(z_value, proporcao_amostral, error_margin, n_population):
 
-        print('\n>>> Intervalo de Confiânça\n')
-        margem = self.margem_de_erro(t0, desvio_padrao_amostral, n)
+            parte_de_cima = (z_value**2) * (proporcao_amostral * (1 - proporcao_amostral)) * (n_population)
+            parte_de_baixo = ((error_margin**2) * (n_population - 1)) + ((z_value**2) * (proporcao_amostral * (1 - proporcao_amostral)))
 
-        #Calculando intervalo de confiança
-        intervalo = self.intervalo_confianca(media_amostral, margem)
-        print(f'Intervalo de Confiança: {intervalo}')
-        print('_____________')
+            return parte_de_cima / parte_de_baixo
 
-class hipoteses_proporcao(teste_hipoteses):
-    """
-    - ME é a margem de erro do estudo.
-    - Z é o valor da Distribuição
-    Normal que fornece a
-    confiança desejada.
-    - proporcao_amostral(1 − proporcao_amostral) é a variância estimada que é função de proporcao_amostral fornecido 
-    pela amostra piloto.
-    - N é o tamanho populacional.
-    """
+        def teste_de_hipoteses(proporcao_populacional, proporcao_amostral, n, confianca, tipo_hipotese):
+            """
+            tipo_hipotese => ['bilateral', '>', '<']
+            """
 
-    def __init__(self):
-        teste_hipoteses.__init__(self)
+            # Defina H0 e H1
+            H0 = 'H0: u = ' + str(proporcao_populacional)
+            if tipo_hipotese == 'bilateral':
+                H1 = 'H1: u != '+ str(proporcao_populacional)
+            else:
+                H1 = f'H1: u {tipo_hipotese} '+ str(proporcao_populacional)
 
+            print('Definindo Hipoteses:')
+            print(H0)
+            print(H1)
 
-    def hipotese(self, proporcao_populacional, proporcao_amostral, n):
-        """
-        proporcao_populacional é a proporção populacional
-        O proporcao_amostral é a proporção amostral 
-        n é o tamanho da amostra
-        """
+            if tipo_hipotese == 'bilateral':
+                alpha = 1 - confianca
+                alpha = alpha / 2
+                confianca = 1 - alpha
+            else:
+                alpha = 1 - confianca
+            print(f'Confiança: {confianca}')
+            print(f'Alpha: {alpha}')
 
-        superior = (proporcao_amostral - proporcao_populacional)
-        inferior = (proporcao_populacional*(1-proporcao_populacional)) / n
+            # Encontrando estatística do teste
+            z = statcc.proporcao.hipotese(proporcao_populacional, proporcao_amostral, n)
+            print(f'\nValor de Z: {z}')
+            print('_____________')
 
-        return superior / (inferior ** 0.5)
+            ##############################
+            ## Decisão pela região crítica
+            ##############################
 
+            print('\n>>> Decisão pela região crítica\n')
 
-    def intervalo_confianca(self, proporcao_amostral, margem_erro):
-        return proporcao_amostral - margem_erro, proporcao_amostral + margem_erro
+            # Inputa a probabilidade e ele mostra o Z
+            z0 = st.norm.ppf(confianca)
+            print('Z0 com confiança de', confianca,'->', z0)
 
-    def margem_de_erro(self, z, proporcao_amostral, n):
-        return z * (((proporcao_amostral* (1- proporcao_amostral)) / n) ** 0.5)
+            print('_____________')
 
-    def tamanho_amostral(self, z_value, proporcao_amostral, error_margin):
+            #######################
+            ## Decisão pelo p-valor
+            #######################
 
-        return ((z_value ** 2) * (proporcao_amostral * (1 - proporcao_amostral) ) / (error_margin ** 2) )
+            print('\n>>> Decisão pelo p-valor\n')
 
-    def margem_de_erro_finita(self, z_value, proporcao_amostral, n_sample, n_population):
+            if z > 0:
+                p_value = scipy.stats.norm.sf(z)
+            else:
+                p_value = scipy.stats.norm.sf(z * (-1))
 
-        parte1 = statcc.proporcao.margem_de_erro(z_value, proporcao_amostral, n_sample)
+            if tipo_hipotese == 'bilateral':
+                p_value *= 2
+                alpha *= 2
 
-        ajuste_n = ((n_population - n_sample) / (n_population - 1)) ** 0.5
+            print(f'P Valor do Teste: {p_value}')
+            print(f'Valor Alpha: {alpha}')
+            print('_____________')
 
-        return parte1 * ajuste_n
+            #########################
+            ## Intervalo de Confiânça
+            #########################
 
-    def tamanho_amostral_finita(self, z_value, proporcao_amostral, error_margin, n_population):
+            print('\n>>> Intervalo de Confiânça\n')
 
-        parte_de_cima = (z_value**2) * (proporcao_amostral * (1 - proporcao_amostral)) * (n_population)
-        parte_de_baixo = ((error_margin**2) * (n_population - 1)) + ((z_value**2) * (proporcao_amostral * (1 - proporcao_amostral)))
+            margem = statcc.proporcao.margem_de_erro(z0, proporcao_amostral, n)
 
-        return parte_de_cima / parte_de_baixo
-
-    def teste_de_hipoteses(self, proporcao_populacional, proporcao_amostral, n):
-        """
-        tipo_hipotese => ['bilateral', '>', '<']
-        """
-
-        # Defina H0 e H1
-        H0 = 'H0: u = ' + str(proporcao_populacional)
-        if self.tipo_da_hipotese == 'bilateral':
-            H1 = 'H1: u != '+ str(proporcao_populacional)
-        else:
-            H1 = f'H1: u {self.tipo_da_hipotese} '+ str(proporcao_populacional)
-
-        print('Definindo Hipoteses:')
-        print(H0)
-        print(H1)
-
-        # if self.tipo_da_hipotese == 'bilateral':
-        #     alpha = 1 - confianca
-        #     alpha = alpha / 2
-        #     confianca = 1 - alpha
-        # else:
-        #     alpha = 1 - confianca
-        print(f'Confiança: {self.confianca}')
-        print(f'Alpha: {self.alpha}')
-
-        # Encontrando estatística do teste
-        z = self.hipotese(proporcao_populacional, proporcao_amostral, n)
-        print(f'\nValor de Z: {z}')
-        print('_____________')
-
-        ##############################
-        ## Decisão pela região crítica
-        ##############################
-
-        print('\n>>> Decisão pela região crítica\n')
-
-        # Inputa a probabilidade e ele mostra o Z
-        # z0 = st.norm.ppf(confianca)
-        z0 = self.z_value()
-        print('Z0 com confiança de', self.confianca,'->', z0)
-
-        print('_____________')
-
-        #######################
-        ## Decisão pelo p-valor
-        #######################
-
-        print('\n>>> Decisão pelo p-valor\n')
-
-        if z > 0:
-            p_value = scipy.stats.norm.sf(z)
-        else:
-            p_value = scipy.stats.norm.sf(z * (-1))
-
-        if self.tipo_da_hipotese == 'bilateral':
-            p_value *= 2
-            alpha = self.alpha * 2
-        else:
-            alpha = self.alpha
-
-        print(f'P Valor do Teste: {p_value}')
-        print(f'Valor Alpha: {alpha}')
-        print('_____________')
-
-        #########################
-        ## Intervalo de Confiânça
-        #########################
-
-        print('\n>>> Intervalo de Confiânça\n')
-
-        margem = self.margem_de_erro(z0, proporcao_amostral, n)
-
-        #Calculando intervalo de confiança
-        intervalo = self.intervalo_confianca(proporcao_amostral, margem)
-        print(f'Intervalo de Confiança: {intervalo}')
-        print('_____________')
+            #Calculando intervalo de confiança
+            intervalo = statcc.proporcao.intervalo_confianca(proporcao_amostral, margem)
+            print(f'Intervalo de Confiança: {intervalo}')
+            print('_____________')
