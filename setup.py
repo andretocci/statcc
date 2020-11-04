@@ -11,8 +11,8 @@ setup(
     author_email='andrerussi002@gmail.com',
     url='https://github.com/andretocci/statcc',
     packages=['minhas_hipoteses'],
-    package_dir={'minhas_hipoteses': 'stacc/minhas_hipoteses'},
-    package_data={'minhas_hipoteses': ['stacc/minhas_hipoteses/*.py']},
+    #package_dir={'minhas_hipoteses': 'stacc/minhas_hipoteses'},
+    #package_data={'minhas_hipoteses': ['stacc/minhas_hipoteses/*.py']},
     install_requires=['numpy', 'scipy' ],
     license="Apache License 2.0",
     classifiers=[
