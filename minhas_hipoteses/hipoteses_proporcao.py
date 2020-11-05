@@ -1,4 +1,4 @@
-from .minhas_hipoteses import teste_hipoteses
+from . import teste_hipoteses
 
 class hipoteses_proporcao(teste_hipoteses):
     """
