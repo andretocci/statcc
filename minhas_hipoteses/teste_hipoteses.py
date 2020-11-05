@@ -1,5 +1,4 @@
-import scipy.stats as st
-
+import scipy.stats
 class teste_hipoteses():
 
     def __init__(self):
@@ -37,19 +36,19 @@ class teste_hipoteses():
         """
         Retorna o valor de Z com base em um nível de confiânça. Tipo indica se valor avaliado é uni ou bilateral.
         
-        import scipy.stats as st
-        st.norm.ppf()
+        import scipy.stats
+        scipy.stats.norm.ppf()
         """
-        return st.norm.ppf(self.confianca)
+        return scipy.stats.norm.ppf(self.confianca)
 
     def t_value(self, n):
         """
         Retorna o valor de t com base em um nível de confiânça. 
         
-        import scipy.stats as st
-        st.norm.ppf()
+        import scipy.stats
+        scipy.stats.norm.ppf()
         """
-        return st.t.ppf(self.confianca, n - 1)
+        return scipy.stats.t.ppf(self.confianca, n - 1)
 
     def intervalo_confianca(self, media_amostral, margem_de_erro):
         return media_amostral - margem_de_erro, media_amostral + margem_de_erro
@@ -120,12 +119,10 @@ class teste_hipoteses():
 
         if teste == 't':
             graus_de_liberdade = n -1
-            #t0 = scipy.stats.t.ppf(confianca, graus_de_liberdade)
             t0 = self.t_value(n)
             print('T0 com confiança de', self.confianca,'->', t0)
         else:
             # Inputa a probabilidade e ele mostra o Z
-            # z0 = st.norm.ppf(confianca)
             z0 = self.z_value()
             print('Z0 com confiança de', self.confianca,'->', z0)
 

@@ -84,7 +84,6 @@ class hipoteses_proporcao(teste_hipoteses):
         print('\n>>> Decisão pela região crítica\n')
 
         # Inputa a probabilidade e ele mostra o Z
-        # z0 = st.norm.ppf(confianca)
         z0 = self.z_value()
         print('Z0 com confiança de', self.confianca,'->', z0)
 
