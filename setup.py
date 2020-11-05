@@ -10,7 +10,7 @@ setup(
     author='Andre Tocci',
     author_email='andrerussi002@gmail.com',
     url='https://github.com/andretocci/statcc',
-    packages=['minhas_hipoteses'],
+    packages=setuptools.find_packages(),
     #package_dir={'minhas_hipoteses': 'stacc/minhas_hipoteses'},
     #package_data={'minhas_hipoteses': ['stacc/minhas_hipoteses/*.py']},
     install_requires=['numpy', 'scipy' ],

@@ -1,3 +1,5 @@
+from .minhas_hipoteses import teste_hipoteses
+
 class hipoteses_t(teste_hipoteses):
 
     def __init__(self):

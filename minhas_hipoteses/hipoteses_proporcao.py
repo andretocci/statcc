@@ -1,3 +1,5 @@
+from .minhas_hipoteses import teste_hipoteses
+
 class hipoteses_proporcao(teste_hipoteses):
     """
     - ME é a margem de erro do estudo.
@@ -38,7 +40,7 @@ class hipoteses_proporcao(teste_hipoteses):
 
     def margem_de_erro_finita(self, z_value, proporcao_amostral, n_sample, n_population):
 
-        parte1 = statcc.proporcao.margem_de_erro(z_value, proporcao_amostral, n_sample)
+        parte1 = self.proporcao.margem_de_erro(z_value, proporcao_amostral, n_sample)
 
         ajuste_n = ((n_population - n_sample) / (n_population - 1)) ** 0.5
 
