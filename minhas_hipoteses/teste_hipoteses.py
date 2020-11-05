@@ -1,3 +1,5 @@
+import scipy.stats as st
+
 class teste_hipoteses():
 
     def __init__(self):
@@ -47,7 +49,7 @@ class teste_hipoteses():
         import scipy.stats as st
         st.norm.ppf()
         """
-        return scipy.stats.t.ppf(self.confianca, n - 1)
+        return st.t.ppf(self.confianca, n - 1)
 
     def intervalo_confianca(self, media_amostral, margem_de_erro):
         return media_amostral - margem_de_erro, media_amostral + margem_de_erro
@@ -115,8 +117,6 @@ class teste_hipoteses():
         ##############################
 
         print('\n>>> Decisão pela região crítica\n')
-
-        import scipy.stats as st
 
         if teste == 't':
             graus_de_liberdade = n -1
