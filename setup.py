@@ -13,7 +13,7 @@ setup(
     packages=setuptools.find_packages(),
     #package_dir={'minhas_hipoteses': 'stacc/minhas_hipoteses'},
     #package_data={'minhas_hipoteses': ['stacc/minhas_hipoteses/*.py']},
-    install_requires=['numpy', 'scipy' ],
+    install_requires=['numpy', 'scipy.stats' ],
     license="Apache License 2.0",
     classifiers=[
         "Programming Language :: Python :: 3",
